@@ -9,7 +9,8 @@ import CategoriesScreen from '../screens/CategoriesScreen';
 import TrendingScreen from '../screens/TrendingScreen';
 import MoreScreen from '../screens/MoreScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
-import CategoryProductsScreen from '../screens/CategoryProductsScreen'; // 👈 ADD THIS
+import WishlistScreen from '../screens/WishlistScreen';
+import CategoryProductsScreen from '../screens/CategoryProductsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -33,6 +34,8 @@ function BottomTabs() {
                         iconName = 'category';
                     } else if (route.name === 'Trending') {
                         iconName = 'trending-up';
+                    } else if (route.name === 'Wishlist') {
+                        iconName = 'favorite';
                     } else if (route.name === 'More') {
                         iconName = 'more-horiz';
                     }
@@ -43,6 +46,7 @@ function BottomTabs() {
             <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Categories" component={CategoriesScreen} />
             <Tab.Screen name="Trending" component={TrendingScreen} />
+            <Tab.Screen name="Wishlist" component={WishlistScreen} />
             <Tab.Screen name="More" component={MoreScreen} />
         </Tab.Navigator>
     );

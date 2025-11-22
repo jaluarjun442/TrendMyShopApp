@@ -1,4 +1,5 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
+
 import {
   View,
   Text,
@@ -10,13 +11,16 @@ import {
   RefreshControl,
 } from 'react-native';
 import Theme from '../theme/Theme';
-import {getTrendingProducts} from '../api/productApi';
+import { getTrendingProducts } from '../api/productApi';
+import { WishlistContext } from '../context/WishlistContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export default function TrendingScreen({navigation}) {
+export default function TrendingScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
   const fetchTrending = async (isRefresh = false) => {
     if (loading && !isRefresh) {
@@ -49,21 +53,38 @@ export default function TrendingScreen({navigation}) {
     fetchTrending(true);
   }, []);
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('ProductDetail', {id: item.id})}>
-      {item.image ? (
-        <Image source={{uri: item.image}} style={styles.image} />
-      ) : null}
-      <Text style={styles.name} numberOfLines={2}>
-        {item.name}
-      </Text>
-      <Text style={styles.price}>
-        ₹ {item.discount_price ?? item.price}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const isFav = isInWishlist(item.id);
+
+    return (
+      <View style={styles.card}>
+        <TouchableOpacity
+          style={styles.heartButton}
+          onPress={() => toggleWishlist(item)}>
+          <Icon
+            name={isFav ? 'favorite' : 'favorite-border'}
+            size={20}
+            color={isFav ? 'red' : '#999'}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.cardContent}
+          onPress={() => navigation.navigate('ProductDetail', { id: item.id })}>
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.image} />
+          ) : null}
+          <Text style={styles.name} numberOfLines={2}>
+            {item.name}
+          </Text>
+          <Text style={styles.price}>
+            ₹ {item.discount_price ?? item.price}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
 
   if (!loading && initialLoaded && data.length === 0) {
     return (
@@ -146,5 +167,25 @@ const styles = StyleSheet.create({
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  card: {
+    flex: 1,
+    backgroundColor: Theme.COLORS.lightGray,
+    margin: 8,
+    padding: 10,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: Theme.COLORS.border,
+    position: 'relative',
+  },
+  cardContent: {
+    flex: 1,
+  },
+  heartButton: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    zIndex: 10,
+    padding: 4,
   },
 });

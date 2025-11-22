@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,14 @@ import {
   RefreshControl,
 } from 'react-native';
 import Theme from '../theme/Theme';
-import {getProducts} from '../api/productApi';
+import { getProducts } from '../api/productApi';
+import { WishlistContext } from '../context/WishlistContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const PAGE_SIZE = 15;
 
-export default function CategoryProductsScreen({route, navigation}) {
-  const {categoryId, categoryName} = route.params || {};
+export default function CategoryProductsScreen({ route, navigation }) {
+  const { categoryId, categoryName } = route.params || {};
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -23,6 +25,7 @@ export default function CategoryProductsScreen({route, navigation}) {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
   const fetchPage = async (pageToLoad = 1, isRefresh = false) => {
     if (loadingMore && !isRefresh) {
@@ -35,7 +38,7 @@ export default function CategoryProductsScreen({route, navigation}) {
       setLoadingMore(true);
     }
 
-    const res = await getProducts(pageToLoad, {category_id: categoryId});
+    const res = await getProducts(pageToLoad, { category_id: categoryId });
 
     if (res.status) {
       const newItems = res.items || [];
@@ -80,21 +83,38 @@ export default function CategoryProductsScreen({route, navigation}) {
     fetchPage(page, false);
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('ProductDetail', {id: item.id})}>
-      {item.image ? (
-        <Image source={{uri: item.image}} style={styles.image} />
-      ) : null}
-      <Text style={styles.name} numberOfLines={2}>
-        {item.name}
-      </Text>
-      <Text style={styles.price}>
-        ₹ {item.discount_price ?? item.price}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const isFav = isInWishlist(item.id);
+
+    return (
+      <View style={styles.card}>
+        <TouchableOpacity
+          style={styles.heartButton}
+          onPress={() => toggleWishlist(item)}>
+          <Icon
+            name={isFav ? 'favorite' : 'favorite-border'}
+            size={20}
+            color={isFav ? 'red' : '#999'}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.cardContent}
+          onPress={() => navigation.navigate('ProductDetail', { id: item.id })}>
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.image} />
+          ) : null}
+          <Text style={styles.name} numberOfLines={2}>
+            {item.name}
+          </Text>
+          <Text style={styles.price}>
+            ₹ {item.discount_price ?? item.price}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
 
   const renderFooter = () => {
     if (!loadingMore) return null;
@@ -182,5 +202,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Theme.COLORS.text,
     textAlign: 'center',
+  },
+  card: {
+    flex: 1,
+    backgroundColor: Theme.COLORS.lightGray,
+    margin: 8,
+    padding: 10,
+    borderRadius: 0,
+    borderWidth: 1,
+    borderColor: Theme.COLORS.border,
+    position: 'relative',
+  },
+  cardContent: {
+    flex: 1,
+  },
+  heartButton: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    zIndex: 10,
+    padding: 4,
   },
 });

@@ -1,4 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { WishlistContext } from '../context/WishlistContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useContext } from 'react';
 import {
     View,
     Text,
@@ -21,6 +24,7 @@ export default function ProductDetailScreen({ route, navigation }) {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [initialLoaded, setInitialLoaded] = useState(false);
+    const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
     const fetchProduct = async isRefresh => {
         if (!id) {
@@ -41,6 +45,15 @@ export default function ProductDetailScreen({ route, navigation }) {
             // 🔹 Set header title to product name dynamically
             navigation.setOptions({
                 title: res.item.name || 'Product',
+                headerRight: () => (
+                    <TouchableOpacity onPress={() => toggleWishlist(res.item)} style={{ marginRight: 15 }}>
+                        <Icon
+                            name={isInWishlist(res.item.id) ? 'favorite' : 'favorite-border'}
+                            size={24}
+                            color={isInWishlist(res.item.id) ? 'red' : '#fff'}
+                        />
+                    </TouchableOpacity>
+                ),
             });
         } else {
             navigation.setOptions({ title: 'Product' });
@@ -52,13 +65,33 @@ export default function ProductDetailScreen({ route, navigation }) {
         setRefreshing(false);
     };
 
-    // Initial load
+    // Existing effect → fetch product & set temporary title
     useEffect(() => {
-        // show temporary loading title
         navigation.setOptions({ title: 'Loading...' });
         fetchProduct(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
+
+    // 🔥 New effect → update wishlist icon when status changes
+    useEffect(() => {
+        if (product) {
+            navigation.setOptions({
+                title: product.name || 'Product',
+                headerRight: () => (
+                    <TouchableOpacity
+                        onPress={() => toggleWishlist(product)}
+                        style={{ marginRight: 15 }}>
+                        <Icon
+                            name={isInWishlist(product.id) ? 'favorite' : 'favorite-border'}
+                            size={24}
+                            color={isInWishlist(product.id) ? 'red' : '#fff'}
+                        />
+                    </TouchableOpacity>
+                )
+            });
+        }
+    }, [product, isInWishlist(product?.id)]);
+
 
     const onRefresh = useCallback(() => {
         fetchProduct(true);
