@@ -1,18 +1,22 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  TouchableOpacity,
-  Image,
   RefreshControl,
 } from 'react-native';
 import Theme from '../theme/Theme';
 import { getProducts } from '../api/productApi';
 import { WishlistContext } from '../context/WishlistContext';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import ProductListItem from '../components/ProductListItem';
+import commonStyles from '../styles/common';
 
 const PAGE_SIZE = 15;
 
@@ -25,6 +29,7 @@ export default function CategoryProductsScreen({ route, navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [initialLoaded, setInitialLoaded] = useState(false);
+
   const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
   const fetchPage = async (pageToLoad = 1, isRefresh = false) => {
@@ -38,7 +43,9 @@ export default function CategoryProductsScreen({ route, navigation }) {
       setLoadingMore(true);
     }
 
-    const res = await getProducts(pageToLoad, { category_id: categoryId });
+    const res = await getProducts(pageToLoad, {
+      category_id: categoryId,
+    });
 
     if (res.status) {
       const newItems = res.items || [];
@@ -68,6 +75,7 @@ export default function CategoryProductsScreen({ route, navigation }) {
     }
   };
 
+  // Initial load + when categoryId changes
   useEffect(() => {
     fetchPage(1, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,34 +95,18 @@ export default function CategoryProductsScreen({ route, navigation }) {
     const isFav = isInWishlist(item.id);
 
     return (
-      <View style={styles.card}>
-        <TouchableOpacity
-          style={styles.heartButton}
-          onPress={() => toggleWishlist(item)}>
-          <Icon
-            name={isFav ? 'favorite' : 'favorite-border'}
-            size={20}
-            color={isFav ? 'red' : '#999'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cardContent}
-          onPress={() => navigation.navigate('ProductDetail', { id: item.id })}>
-          {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.image} />
-          ) : null}
-          <Text style={styles.name} numberOfLines={2}>
-            {item.name}
-          </Text>
-          <Text style={styles.price}>
-            ₹ {item.discount_price ?? item.price}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <ProductListItem
+        item={item}
+        isFav={isFav}
+        onPress={() =>
+          navigation.navigate('ProductDetail', {
+            id: item.id,
+          })
+        }
+        onToggleWishlist={() => toggleWishlist(item)}
+      />
     );
   };
-
 
   const renderFooter = () => {
     if (!loadingMore) return null;
@@ -127,21 +119,25 @@ export default function CategoryProductsScreen({ route, navigation }) {
 
   if (!refreshing && !loadingMore && initialLoaded && data.length === 0) {
     return (
-      <View style={[styles.container, styles.emptyContainer]}>
-        <Text style={styles.emptyText}>
-          No products found in {categoryName || 'this category'}.
-        </Text>
+      <View style={commonStyles.screenContainer}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            No products found in {categoryName || 'this category'}.
+          </Text>
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={commonStyles.screenContainer}>
       <FlatList
         data={data}
-        numColumns={2}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
+        ItemSeparatorComponent={() => (
+          <View style={commonStyles.listSeparator} />
+        )}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -160,41 +156,11 @@ export default function CategoryProductsScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: Theme.SIZES.padding,
-    backgroundColor: '#fff',
-  },
-  card: {
-    flex: 1,
-    backgroundColor: Theme.COLORS.lightGray,
-    margin: 8,
-    padding: 10,
-    borderRadius: 0,
-    borderWidth: 1,
-    borderColor: Theme.COLORS.border,
-  },
-  image: {
-    width: '100%',
-    height: 120,
-    resizeMode: 'cover',
-    borderRadius: 0,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 6,
-  },
-  price: {
-    fontSize: 14,
-    color: Theme.COLORS.primary,
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
   footer: {
     paddingVertical: 16,
   },
   emptyContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -202,25 +168,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Theme.COLORS.text,
     textAlign: 'center',
-  },
-  card: {
-    flex: 1,
-    backgroundColor: Theme.COLORS.lightGray,
-    margin: 8,
-    padding: 10,
-    borderRadius: 0,
-    borderWidth: 1,
-    borderColor: Theme.COLORS.border,
-    position: 'relative',
-  },
-  cardContent: {
-    flex: 1,
-  },
-  heartButton: {
-    position: 'absolute',
-    bottom: 6,
-    right: 6,
-    zIndex: 10,
-    padding: 4,
   },
 });

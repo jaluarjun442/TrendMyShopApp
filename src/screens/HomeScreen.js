@@ -10,22 +10,21 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  TouchableOpacity,
-  Image,
   RefreshControl,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import Theme from '../theme/Theme';
 import { getProducts } from '../api/productApi';
 import { WishlistContext } from '../context/WishlistContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import ProductListItem from '../components/ProductListItem';
+import commonStyles from '../styles/common';
 
 const PAGE_SIZE = 15;
 
 export default function HomeScreen({ navigation }) {
-  // 🔹 All hooks are here at the top, in a fixed order
-
-  // Data & pagination
+  // state + hooks (same as working version)
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -33,11 +32,9 @@ export default function HomeScreen({ navigation }) {
   const [hasMore, setHasMore] = useState(true);
   const [initialLoaded, setInitialLoaded] = useState(false);
 
-  // Search state
   const [searchText, setSearchText] = useState('');
   const [appliedSearch, setAppliedSearch] = useState('');
 
-  // Wishlist context
   const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
 
   const fetchPage = async (pageToLoad = 1, isRefresh = false) => {
@@ -60,7 +57,7 @@ export default function HomeScreen({ navigation }) {
 
       if (isRefresh) {
         setData(newItems);
-        setPage(2); // next page is 2
+        setPage(2);
         setHasMore(newItems.length >= PAGE_SIZE);
       } else {
         if (newItems.length > 0) {
@@ -83,7 +80,6 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Initial & when appliedSearch changes
   useEffect(() => {
     fetchPage(1, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,9 +91,7 @@ export default function HomeScreen({ navigation }) {
   }, [appliedSearch]);
 
   const loadMore = () => {
-    if (!hasMore || loadingMore || refreshing) {
-      return;
-    }
+    if (!hasMore || loadingMore || refreshing) return;
     fetchPage(page, false);
   };
 
@@ -112,49 +106,6 @@ export default function HomeScreen({ navigation }) {
       setAppliedSearch('');
       setHasMore(true);
     }
-  };
-
-  // 🔹 Rendering helpers
-
-  const renderItem = ({ item }) => {
-    const isFav = isInWishlist(item.id);
-
-    return (
-      <View style={styles.card}>
-        <TouchableOpacity
-          style={styles.heartButton}
-          onPress={() => toggleWishlist(item)}>
-          <Icon
-            name={isFav ? 'favorite' : 'favorite-border'}
-            size={20}
-            color={isFav ? 'red' : '#999'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.cardContent}
-          onPress={() => navigation.navigate('ProductDetail', { id: item.id })}>
-          {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.image} />
-          ) : null}
-          <Text style={styles.name} numberOfLines={2}>
-            {item.name}
-          </Text>
-          <Text style={styles.price}>
-            ₹ {item.discount_price ?? item.price}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const renderFooter = () => {
-    if (!loadingMore) return null;
-    return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="large" color={Theme.COLORS.primary} />
-      </View>
-    );
   };
 
   const renderSearchBar = () => (
@@ -186,10 +137,35 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  // Empty state (after data loaded, no items)
+  const renderItem = ({ item }) => {
+    const isFav = isInWishlist(item.id);
+    return (
+      <ProductListItem
+        item={item}
+        isFav={isFav}
+        onPress={() =>
+          navigation.navigate('ProductDetail', {
+            id: item.id,
+          })
+        }
+        onToggleWishlist={() => toggleWishlist(item)}
+      />
+    );
+  };
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="large" color={Theme.COLORS.primary} />
+      </View>
+    );
+  };
+
+  // Empty state
   if (!refreshing && !loadingMore && initialLoaded && data.length === 0) {
     return (
-      <View style={styles.container}>
+      <View style={commonStyles.screenContainer}>
         {renderSearchBar()}
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No products found.</Text>
@@ -200,14 +176,15 @@ export default function HomeScreen({ navigation }) {
 
   // Normal state
   return (
-    <View style={styles.container}>
+    <View style={commonStyles.screenContainer}>
       {renderSearchBar()}
-
       <FlatList
         data={data}
-        numColumns={2}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
+        ItemSeparatorComponent={() => (
+          <View style={commonStyles.listSeparator} />
+        )}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -226,11 +203,6 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: Theme.SIZES.padding,
-    backgroundColor: '#fff',
-  },
   searchContainer: {
     flexDirection: 'row',
     marginBottom: 8,
@@ -264,43 +236,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
-  },
-  card: {
-    flex: 1,
-    backgroundColor: Theme.COLORS.lightGray,
-    margin: 8,
-    padding: 10,
-    borderRadius: 0,
-    borderWidth: 1,
-    borderColor: Theme.COLORS.border,
-    position: 'relative',
-  },
-  cardContent: {
-    flex: 1,
-  },
-  image: {
-    width: '100%',
-    height: 120,
-    resizeMode: 'cover',
-    borderRadius: 0,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginTop: 6,
-  },
-  price: {
-    fontSize: 14,
-    color: Theme.COLORS.primary,
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  heartButton: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    zIndex: 10,
-    padding: 4,
   },
   footer: {
     paddingVertical: 16,
