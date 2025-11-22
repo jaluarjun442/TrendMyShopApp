@@ -49,32 +49,42 @@ export const getProducts = async (page = 1, extraParams = {}) => {
     }
 };
 
-export const getTrendingProducts = async () => {
-    try {
-        const res = await API.get('/products/trending');
+export const getTrendingProducts = async (page = 1) => {
+  try {
+    const res = await API.get('/products/trending', {
+      params: {
+        page,
+      },
+    });
 
-        const payload = res.data ?? {};
+    const payload = res.data ?? {};
 
-        let items = [];
+    let items = [];
 
-        if (Array.isArray(payload)) {
-            items = payload;
-        } else if (Array.isArray(payload.data)) {
-            items = payload.data;
-        } else if (payload.data && Array.isArray(payload.data.data)) {
-            items = payload.data.data;
-        } else if (Array.isArray(payload.products)) {
-            items = payload.products;
-        }
-
-        return {
-            status: payload.status !== false,
-            items,
-        };
-    } catch (err) {
-        console.log('getTrendingProducts error:', err.message);
-        return { status: false, items: [], error: err.message };
+    if (Array.isArray(payload)) {
+      items = payload;
+    } else if (Array.isArray(payload.data)) {
+      items = payload.data;
+    } else if (payload.data && Array.isArray(payload.data.data)) {
+      items = payload.data.data;
+    } else if (Array.isArray(payload.products)) {
+      items = payload.products;
     }
+
+    const meta =
+      payload.meta ||
+      (payload.data && payload.data.meta) ||
+      null;
+
+    return {
+      status: payload.status !== false,
+      items,
+      meta,
+    };
+  } catch (err) {
+    console.log('getTrendingProducts error:', err.message);
+    return {status: false, items: [], meta: null, error: err.message};
+  }
 };
 
 export const getProductById = async id => {

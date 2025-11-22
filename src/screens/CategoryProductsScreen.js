@@ -139,7 +139,7 @@ export default function CategoryProductsScreen({ route, navigation }) {
           <View style={commonStyles.listSeparator} />
         )}
         onEndReached={loadMore}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.8}
         ListFooterComponent={renderFooter}
         showsVerticalScrollIndicator={false}
         refreshControl={
