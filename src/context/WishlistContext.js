@@ -46,7 +46,7 @@ export default function WishlistProvider({ children }) {
             if (prev.some(p => p.id === product.id)) {
                 return prev;
             }
-            return [...prev, product];
+            return [product, ...prev]; // insert at TOP instead of bottom
         });
     }, []);
 
@@ -54,17 +54,14 @@ export default function WishlistProvider({ children }) {
         setWishlist(prev => prev.filter(p => p.id !== id));
     }, []);
 
-    const toggleWishlist = useCallback(
-        product => {
-            setWishlist(prev => {
-                if (prev.some(p => p.id === product.id)) {
-                    return prev.filter(p => p.id !== product.id);
-                }
-                return [...prev, product];
-            });
-        },
-        [],
-    );
+    const toggleWishlist = useCallback(product => {
+        setWishlist(prev => {
+            if (prev.some(p => p.id === product.id)) {
+                return prev.filter(p => p.id !== product.id);
+            }
+            return [product, ...prev]; // new favorite goes to top
+        });
+    }, []);
 
     return (
         <WishlistContext.Provider
