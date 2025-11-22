@@ -17,6 +17,7 @@ import { getProducts } from '../api/productApi';
 import { WishlistContext } from '../context/WishlistContext';
 import ProductListItem from '../components/ProductListItem';
 import commonStyles from '../styles/common';
+import ProductListSkeleton from '../components/ProductListSkeleton';
 
 const PAGE_SIZE = 15;
 
@@ -31,6 +32,7 @@ export default function CategoryProductsScreen({ route, navigation }) {
   const [initialLoaded, setInitialLoaded] = useState(false);
 
   const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
+  const isInitialLoading = !initialLoaded && (refreshing || loadingMore);
 
   const fetchPage = async (pageToLoad = 1, isRefresh = false) => {
     if (loadingMore && !isRefresh) {
@@ -116,6 +118,13 @@ export default function CategoryProductsScreen({ route, navigation }) {
       </View>
     );
   };
+  if (isInitialLoading) {
+    return (
+      <View style={commonStyles.screenContainer}>
+        <ProductListSkeleton />
+      </View>
+    );
+  }
 
   if (!refreshing && !loadingMore && initialLoaded && data.length === 0) {
     return (

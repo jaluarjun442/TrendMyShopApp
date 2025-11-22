@@ -13,14 +13,15 @@ import {
   RefreshControl,
 } from 'react-native';
 import Theme from '../theme/Theme';
-import {getTrendingProducts} from '../api/productApi';
-import {WishlistContext} from '../context/WishlistContext';
+import { getTrendingProducts } from '../api/productApi';
+import { WishlistContext } from '../context/WishlistContext';
 import ProductListItem from '../components/ProductListItem';
 import commonStyles from '../styles/common';
+import ProductListSkeleton from '../components/ProductListSkeleton';
 
 const PAGE_SIZE = 15;
 
-export default function TrendingScreen({navigation}) {
+export default function TrendingScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -28,7 +29,8 @@ export default function TrendingScreen({navigation}) {
   const [hasMore, setHasMore] = useState(true);
   const [initialLoaded, setInitialLoaded] = useState(false);
 
-  const {isInWishlist, toggleWishlist} = useContext(WishlistContext);
+  const { isInWishlist, toggleWishlist } = useContext(WishlistContext);
+  const isInitialLoading = !initialLoaded && (refreshing || loadingMore);
 
   const fetchPage = async (pageToLoad = 1, isRefresh = false) => {
     if (loadingMore && !isRefresh) {
@@ -86,7 +88,7 @@ export default function TrendingScreen({navigation}) {
     fetchPage(page, false);
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     const isFav = isInWishlist(item.id);
 
     return (
@@ -112,6 +114,14 @@ export default function TrendingScreen({navigation}) {
     );
   };
 
+  if (isInitialLoading) {
+    return (
+      <View style={commonStyles.screenContainer}>
+        <ProductListSkeleton />
+      </View>
+    );
+  }
+
   if (!refreshing && !loadingMore && initialLoaded && data.length === 0) {
     return (
       <View style={[commonStyles.screenContainer, styles.emptyContainer]}>
@@ -119,6 +129,7 @@ export default function TrendingScreen({navigation}) {
       </View>
     );
   }
+
 
   if (!initialLoaded && loadingMore && !refreshing) {
     return (
