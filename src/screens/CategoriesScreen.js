@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,10 @@ import {
   RefreshControl,
 } from 'react-native';
 import Theme from '../theme/Theme';
-import {getCategories} from '../api/categoryApi';
+import { getCategories } from '../api/categoryApi';
+import AdBanner from '../components/AdBanner';
 
-export default function CategoriesScreen({navigation}) {
+export default function CategoriesScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -49,7 +50,7 @@ export default function CategoriesScreen({navigation}) {
     fetchCategories(true);
   }, []);
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() =>
@@ -59,7 +60,7 @@ export default function CategoriesScreen({navigation}) {
         })
       }>
       {item.image ? (
-        <Image source={{uri: item.image}} style={styles.image} />
+        <Image source={{ uri: item.image }} style={styles.image} />
       ) : (
         <View style={styles.placeholder}>
           <Text style={styles.placeholderText}>
@@ -77,6 +78,7 @@ export default function CategoriesScreen({navigation}) {
     return (
       <View style={[styles.container, styles.emptyContainer]}>
         <Text style={styles.emptyText}>No categories found.</Text>
+        <AdBanner variant="BANNER" />
       </View>
     );
   }
@@ -104,6 +106,7 @@ export default function CategoriesScreen({navigation}) {
           }
         />
       )}
+      <AdBanner variant="BANNER" />
     </View>
   );
 }

@@ -7,7 +7,7 @@ const COLORS = {
 };
 
 const SIZES = {
-    padding: 16,
+    padding: 5,
     radius: 0, // square theme
 };
 

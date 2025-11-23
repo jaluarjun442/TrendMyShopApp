@@ -16,6 +16,7 @@ import {
 import Theme from '../theme/Theme';
 import { getProductById } from '../api/productApi';
 import { Linking } from 'react-native';
+import AdBanner from '../components/AdBanner';
 
 export default function ProductDetailScreen({ route, navigation }) {
     const { id } = route.params || {};
@@ -155,6 +156,7 @@ export default function ProductDetailScreen({ route, navigation }) {
                     tintColor={Theme.COLORS.primary}
                 />
             }>
+            <AdBanner variant="LARGE_BANNER" style={{ marginVertical: 12 }} />
             <View style={styles.card}>
                 {product?.image ? (
                     <Image source={{ uri: product.image }} style={styles.image} />
@@ -186,6 +188,7 @@ export default function ProductDetailScreen({ route, navigation }) {
                     <Text style={styles.buyButtonText}>Buy Now</Text>
                 </TouchableOpacity>
             </View>
+            <AdBanner variant="LARGE_BANNER" style={{ marginVertical: 12 }} />
         </ScrollView>
     );
 }
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: Theme.COLORS.lightGray,
         borderRadius: 0,
-        padding: 16,
+        padding: 5,
         borderWidth: 1,
         borderColor: Theme.COLORS.border,
     },

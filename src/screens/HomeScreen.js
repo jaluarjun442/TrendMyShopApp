@@ -21,8 +21,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import ProductListItem from '../components/ProductListItem';
 import commonStyles from '../styles/common';
 import ProductListSkeleton from '../components/ProductListSkeleton';
+import AdBanner from '../components/AdBanner';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 20;
 
 export default function HomeScreen({ navigation }) {
   // state + hooks (same as working version)
@@ -139,22 +140,29 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     const isFav = isInWishlist(item.id);
+
+    const showAdOnThisRow = index % PAGE_SIZE === 0;
+
     return (
-      <ProductListItem
-        item={item}
-        isFav={isFav}
-        showPrice={false}
-        onPress={() =>
-          navigation.navigate('ProductDetail', {
-            id: item.id,
-          })
-        }
-        onToggleWishlist={() => toggleWishlist(item)}
-      />
+      <>
+        {showAdOnThisRow && <AdBanner variant="BANNER" />}
+        <ProductListItem
+          item={item}
+          isFav={isFav}
+          showPrice={false}
+          onPress={() =>
+            navigation.navigate('ProductDetail', {
+              id: item.id,
+            })
+          }
+          onToggleWishlist={() => toggleWishlist(item)}
+        />
+      </>
     );
   };
+
 
   const renderFooter = () => {
     if (!loadingMore) return null;
@@ -178,6 +186,7 @@ export default function HomeScreen({ navigation }) {
     return (
       <View style={commonStyles.screenContainer}>
         {renderSearchBar()}
+        <AdBanner />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No products found.</Text>
         </View>

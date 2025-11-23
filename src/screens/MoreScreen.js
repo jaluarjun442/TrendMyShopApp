@@ -13,6 +13,7 @@ import Theme from '../theme/Theme';
 import { getAppSettings } from '../api/settingsApi';
 import { Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import AdBanner from '../components/AdBanner';
 
 // Optional static version (you can update later)
 const APP_VERSION = '1.0.0';
@@ -133,6 +134,7 @@ export default function MoreScreen() {
                 ListFooterComponent={
                     <View style={styles.footer}>
                         <Text style={styles.footerText}>TrendMyShop v{APP_VERSION}</Text>
+                        {/* <AdBanner variant="MEDIUM_RECTANGLE" /> */}
                     </View>
                 }
             />

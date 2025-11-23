@@ -18,6 +18,7 @@ import { WishlistContext } from '../context/WishlistContext';
 import ProductListItem from '../components/ProductListItem';
 import commonStyles from '../styles/common';
 import ProductListSkeleton from '../components/ProductListSkeleton';
+import AdBanner from '../components/AdBanner';
 
 const PAGE_SIZE = 15;
 
@@ -162,6 +163,7 @@ export default function TrendingScreen({ navigation }) {
           />
         }
       />
+      <AdBanner variant="BANNER" />
     </View>
   );
 }

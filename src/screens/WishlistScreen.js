@@ -10,6 +10,7 @@ import { WishlistContext } from '../context/WishlistContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ProductListItem from '../components/ProductListItem';
 import commonStyles from '../styles/common';
+import AdBanner from '../components/AdBanner';
 
 export default function WishlistScreen({ navigation }) {
     const { wishlist, toggleWishlist, isInWishlist } = useContext(WishlistContext);
@@ -48,6 +49,7 @@ export default function WishlistScreen({ navigation }) {
                 )}
                 showsVerticalScrollIndicator={false}
             />
+            <AdBanner variant="BANNER" />
         </View>
     );
 }
