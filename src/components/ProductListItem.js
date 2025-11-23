@@ -14,6 +14,7 @@ export default function ProductListItem({
     onPress,
     onToggleWishlist,
     isFav,
+    showPrice = true,
 }) {
     return (
         <TouchableOpacity style={styles.row} onPress={onPress}>
@@ -31,9 +32,11 @@ export default function ProductListItem({
                 <Text style={styles.name} numberOfLines={2}>
                     {item.name}
                 </Text>
-                <Text style={styles.price}>
-                    ₹ {item.discount_price ?? item.price}
-                </Text>
+                {showPrice && (
+                    <Text style={styles.price}>
+                        ₹ {item.discount_price ?? item.price}
+                    </Text>
+                )}
             </View>
 
             <TouchableOpacity
@@ -42,7 +45,7 @@ export default function ProductListItem({
                 <Icon
                     name={isFav ? 'favorite' : 'favorite-border'}
                     size={22}
-                    color={isFav ? 'red' : '#999'}
+                    color={isFav ? 'skyblue' : '#999'}
                 />
             </TouchableOpacity>
         </TouchableOpacity>

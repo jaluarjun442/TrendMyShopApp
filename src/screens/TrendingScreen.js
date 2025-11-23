@@ -95,6 +95,7 @@ export default function TrendingScreen({ navigation }) {
       <ProductListItem
         item={item}
         isFav={isFav}
+        showPrice={false}
         onPress={() =>
           navigation.navigate('ProductDetail', {
             id: item.id,

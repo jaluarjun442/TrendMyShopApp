@@ -50,7 +50,7 @@ export default function ProductDetailScreen({ route, navigation }) {
                         <Icon
                             name={isInWishlist(res.item.id) ? 'favorite' : 'favorite-border'}
                             size={24}
-                            color={isInWishlist(res.item.id) ? 'red' : '#fff'}
+                            color={isInWishlist(res.item.id) ? 'skyblue' : '#fff'}
                         />
                     </TouchableOpacity>
                 ),
@@ -84,7 +84,7 @@ export default function ProductDetailScreen({ route, navigation }) {
                         <Icon
                             name={isInWishlist(product.id) ? 'favorite' : 'favorite-border'}
                             size={24}
-                            color={isInWishlist(product.id) ? 'red' : '#fff'}
+                            color={isInWishlist(product.id) ? 'skyblue' : '#fff'}
                         />
                     </TouchableOpacity>
                 )
@@ -168,22 +168,7 @@ export default function ProductDetailScreen({ route, navigation }) {
 
                 <Text style={styles.name}>{product?.name}</Text>
 
-                <View style={styles.priceRow}>
-                    {discountPrice ? (
-                        <>
-                            <Text style={styles.discountPrice}>₹ {discountPrice}</Text>
-                            {price ? (
-                                <Text style={styles.originalPrice}>₹ {price}</Text>
-                            ) : null}
-                        </>
-                    ) : price ? (
-                        <Text style={styles.discountPrice}>₹ {price}</Text>
-                    ) : null}
-                </View>
 
-                {product?.sku ? (
-                    <Text style={styles.sku}>SKU: {product.sku}</Text>
-                ) : null}
 
                 {product?.category_name ? (
                     <Text style={styles.category}>Category: {product.category_name}</Text>

@@ -21,6 +21,7 @@ export default function WishlistScreen({ navigation }) {
             <ProductListItem
                 item={item}
                 isFav={isFav}
+                showPrice={false}
                 onPress={() => navigation.navigate('ProductDetail', { id: item.id })}
                 onToggleWishlist={() => toggleWishlist(item)}
             />

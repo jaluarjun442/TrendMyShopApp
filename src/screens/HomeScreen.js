@@ -145,6 +145,7 @@ export default function HomeScreen({ navigation }) {
       <ProductListItem
         item={item}
         isFav={isFav}
+        showPrice={false}
         onPress={() =>
           navigation.navigate('ProductDetail', {
             id: item.id,
