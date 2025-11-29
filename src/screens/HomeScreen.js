@@ -147,7 +147,7 @@ export default function HomeScreen({ navigation }) {
 
     return (
       <>
-        {showAdOnThisRow && <AdBanner variant="BANNER" />}
+        {/* {showAdOnThisRow && <AdBanner variant="BANNER" />} */}
         <ProductListItem
           item={item}
           isFav={isFav}
