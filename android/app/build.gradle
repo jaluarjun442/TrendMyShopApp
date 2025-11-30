@@ -92,7 +92,26 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+
+        // Release signing using local keystore file (place keystore at android/app/trendmyshop.keystore)
+        release {
+            // Path relative to this app module directory
+            def keystoreFile = file("trendmyshop.keystore")
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                // keystore password (as provided)
+                storePassword "AAAuu@@11"
+                // alias used when creating keystore
+                keyAlias "trendmyshop"
+                // key password (same as storePassword if you used same)
+                keyPassword "AAAuu@@11"
+            } else {
+                // If keystore not found, fail early with clear message
+                throw new GradleException("Keystore file not found: ${keystoreFile}. Please place trendmyshop.keystore into android/app/")
+            }
+        }
     }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -100,7 +119,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
